@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Rub4Race</title>
+  <meta name="description" content="Rub4Race: a colour-sliding puzzle race. Rebuild the 3x3 pattern in the middle of the 5x5 board faster than your rivals. Solo, vs computer, 2 or 4 players.">
+  <meta name="theme-color" content="#111111">
+  <meta name="author" content="ASROYAL">
+  <link rel="shortcut icon" href="images/title-icon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;900&family=JetBrains+Mono:wght@600;800&display=swap" rel="stylesheet">
+  <script>try{var t=localStorage.getItem("rub4race.theme");if(!t)t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.dataset.theme=t}catch(e){}</script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- ============ MENU ============ -->
+  <section id="menu" class="screen">
+    <button class="theme-btn" id="themeMenu" title="Light / dark mode" aria-label="Toggle dark mode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><g class="sun"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></g><path class="moon" d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg></button>
+    <div class="menu-card">
+      <div class="logo" aria-label="Rub4Race">
+        <div class="logo-tiles" id="logoTiles" aria-hidden="true"></div>
+        <h1>RUB<span>4</span>RACE</h1>
+        <p class="tag">Slide. Match. Win the race.</p>
+      </div>
+
+      <div class="block">
+        <h2>Choose a mode</h2>
+        <div class="presets" id="presets">
+          <button class="preset" data-preset="solo"><b>Solo</b><small>Beat the clock</small></button>
+          <button class="preset" data-preset="cpu"><b>vs Computer</b><small>You vs a bot</small></button>
+          <button class="preset" data-preset="two"><b>2 Players</b><small>Human vs human</small></button>
+          <button class="preset" data-preset="four"><b>4 Players</b><small>One keyboard, four racers</small></button>
+        </div>
+      </div>
+
+      <div class="block">
+        <h2>Racers <span class="hint">tap a seat to cycle Human &rarr; Computer &rarr; Off</span></h2>
+        <div class="slots" id="slots"></div>
+      </div>
+
+      <div class="row-opts">
+        <div class="opt">
+          <label>Computer skill</label>
+          <div class="seg" id="difficulty">
+            <button data-v="easy">Easy</button>
+            <button data-v="medium">Medium</button>
+            <button data-v="hard">Hard</button>
+            <button data-v="insane">Insane</button>
+          </div>
+        </div>
+        <div class="opt toggles">
+          <label class="sw"><input type="checkbox" id="optInvert"><span></span>Invert keys</label>
+          <label class="sw"><input type="checkbox" id="optSymbols"><span></span>Colour-blind symbols</label>
+          <label class="sw"><input type="checkbox" id="optSound" checked><span></span>Sound</label>
+        </div>
+      </div>
+
+      <button id="playBtn" class="cta">START RACE</button>
+
+      <details class="howto">
+        <summary>How to play</summary>
+        <ul>
+          <li>Everyone gets the <b>same shuffled 5&times;5 board</b> and the <b>same 3&times;3 target pattern</b> (top-left of each panel).</li>
+          <li>Slide tiles into the empty gap until the <b>centre 3&times;3 square</b> of your board matches the target. First to finish wins.</li>
+          <li>Keys slide a <b>tile</b> in that direction into the gap (tick <i>Invert keys</i> to move the gap instead). You can also click or tap a tile next to the gap.</li>
+          <li class="keys-help"></li>
+          <li><kbd>Esc</kbd> pauses. Four people on one keyboard works, but some keyboards can't register that many keys at once.</li>
+        </ul>
+      </details>
+
+      <p class="credit">Designed &amp; built by <b>ASROYAL</b> &middot; &copy; 2026</p>
+    </div>
+  </section>
+
+  <!-- ============ GAME ============ -->
+  <section id="game" class="screen hidden">
+    <header class="topbar">
+      <div class="brand">RUB<span>4</span>RACE</div>
+      <div class="mode-pill" id="modePill"></div>
+      <div class="top-actions">
+        <button id="btnFinish" class="ghost hidden" title="Show results now">Finish race</button>
+        <button class="theme-btn" id="themeGame" title="Light / dark mode" aria-label="Toggle dark mode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><g class="sun"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></g><path class="moon" d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg></button>
+        <button id="btnSound" class="icon" title="Sound" aria-label="Toggle sound">&#128266;</button>
+        <button id="btnPause" class="icon" title="Pause (Esc)" aria-label="Pause">&#10074;&#10074;</button>
+        <button id="btnRestart" class="icon" title="New board" aria-label="Restart">&#8635;</button>
+        <button id="btnMenu" class="icon" title="Menu" aria-label="Menu">&#9776;</button>
+      </div>
+    </header>
+    <main id="arena"></main>
+    <div id="banner" class="banner"></div>
+
+    <div id="countdown" class="overlay clear hidden"><div id="countNum">3</div></div>
+
+    <div id="pause" class="overlay hidden">
+      <div class="dialog">
+        <h2>Paused</h2>
+        <div class="dialog-actions">
+          <button class="cta" id="pResume">Resume</button>
+          <button class="ghost" id="pRestart">New board</button>
+          <button class="ghost" id="pMenu">Menu</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="results" class="overlay hidden">
+      <div class="dialog wide">
+        <h2 id="resTitle">Results</h2>
+        <p id="resSub" class="sub"></p>
+        <ol id="resList" class="res-list"></ol>
+        <div class="dialog-actions">
+          <button class="cta" id="rRematch">Rematch</button>
+          <button class="ghost" id="rMenu">Menu</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <canvas id="confetti" aria-hidden="true"></canvas>
+  <script src="index.js"></script>
+</body>
+</html>
